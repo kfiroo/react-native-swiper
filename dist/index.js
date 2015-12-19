@@ -429,7 +429,7 @@ exports['default'] = _reactNative2['default'].createClass({
 
     for (var prop in props) {
       // if(~scrollResponders.indexOf(prop)
-      if (typeof props[prop] === 'function' && prop !== 'onMomentumScrollEnd' && prop !== 'renderPagination' && prop !== 'onScrollBeginDrag') {
+      if (typeof props[prop] === 'function' && prop !== 'onMomentumScrollEnd' && prop !== 'renderPagination' && prop !== 'onScrollBeginDrag' && prop !== 'onScroll') {
         (function () {
           var originResponder = props[prop];
           props[prop] = function (e) {
@@ -492,6 +492,8 @@ exports['default'] = _reactNative2['default'].createClass({
         _reactNative.ScrollView,
         _extends({ ref: 'scrollView'
         }, props, {
+          onScroll: this.props.onScroll,
+          scrollEventThrottle: 16,
           contentContainerStyle: [styles.wrapper, props.style],
           contentOffset: state.offset,
           onScrollBeginDrag: this.onScrollBegin,
