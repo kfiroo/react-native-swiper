@@ -411,6 +411,7 @@ export default React.createClass({
         && prop !== 'onMomentumScrollEnd'
         && prop !== 'renderPagination'
         && prop !== 'onScrollBeginDrag'
+        && prop !== 'onScroll'
       ) {
         let originResponder = props[prop]
         props[prop] = (e) => originResponder(e, this.state, this)
@@ -460,6 +461,8 @@ export default React.createClass({
       }]}>
         <ScrollView ref="scrollView"
           {...props}
+          onScroll={this.props.onScroll}
+          scrollEventThrottle={16}
           contentContainerStyle={[styles.wrapper, props.style]}
           contentOffset={state.offset}
           onScrollBeginDrag={this.onScrollBegin}
