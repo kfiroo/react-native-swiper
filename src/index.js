@@ -1,16 +1,16 @@
-'use strict'
-/*
-react-native-swiper
-
-@author leecade<leecade@163.com>
+/**
+ * react-native-swiper
+ * @author leecade<leecade@163.com>
  */
 import React, {
   StyleSheet,
   Text,
   View,
   ScrollView,
+  Dimensions,
   TouchableOpacity,
-  Dimensions
+  ViewPagerAndroid,
+  Platform
 } from 'react-native'
 
 // Using bare setTimeout, setInterval, setImmediate
@@ -96,7 +96,9 @@ let styles = StyleSheet.create({
   },
 })
 
-export default React.createClass({
+// missing `module.exports = exports['default'];` with babel6
+// export default React.createClass({
+module.exports = React.createClass({
 
   /**
    * Props Validation
@@ -121,6 +123,8 @@ export default React.createClass({
     autoplayDirection                : React.PropTypes.bool,
     index                            : React.PropTypes.number,
     renderPagination                 : React.PropTypes.func,
+    onScroll                         : React.PropTypes.func,
+    scrollEventThrottle              : React.PropTypes.number,
   },
 
   mixins: [TimerMixin],
@@ -147,6 +151,7 @@ export default React.createClass({
       autoplayTimeout                  : 2.5,
       autoplayDirection                : true,
       index                            : 0,
+      scrollEventThrottle              : 16
     }
   },
 
@@ -155,35 +160,7 @@ export default React.createClass({
    * @return {object} states
    */
   getInitialState() {
-    let props = this.props
-
-    let initState = {
-      isScrolling: false,
-      autoplayEnd: false,
-    }
-
-    initState.total = props.children
-      ? (props.children.length || 1)
-      : 0
-
-    initState.index = initState.total > 1
-      ? Math.min(props.index, initState.total - 1)
-      : 0
-
-    // Default: horizontal
-    initState.dir = props.horizontal == false ? 'y' : 'x'
-    initState.width = props.width || width
-    initState.height = props.height || height
-    initState.offset = {}
-
-    if(initState.total > 1) {
-      let setup = props.loop ? 1 : initState.index
-      initState.offset[initState.dir] = initState.dir == 'y'
-        ? initState.height * setup
-        : initState.width * setup
-    }
-
-    return initState
+    return this.initState(this.props)
   },
 
   /**
@@ -196,15 +173,44 @@ export default React.createClass({
     this.props = this.injectState(this.props)
   },
 
+  componentWillReceiveProps(props) {
+    this.setState(this.initState(props))
+  },
+
   componentDidMount() {
     this.autoplay()
+  },
+
+  initState(props) {
+    let initState = {
+      isScrolling: false,
+      autoplayEnd: false,
+    }
+
+    initState.total = props.children ? props.children.length || 1 : 0
+    initState.index = initState.total > 1 ? Math.min(props.index, initState.total - 1) : 0
+
+    // Default: horizontal
+    initState.dir = props.horizontal == false ? 'y' : 'x'
+    initState.width = props.width || width
+    initState.height = props.height || height
+    initState.offset = {}
+
+    if (initState.total > 1) {
+      var setup = props.loop ? 1 : initState.index
+      initState.offset[initState.dir] = initState.dir == 'y'
+        ? initState.height * setup
+        : initState.width * setup
+    }
+    return initState
   },
 
   /**
    * Automatic rolling
    */
   autoplay() {
-    if(!this.props.autoplay
+    if(!Array.isArray(this.props.children)
+      || !this.props.autoplay
       || this.state.isScrolling
       || this.state.autoplayEnd) return
 
@@ -245,6 +251,15 @@ export default React.createClass({
     this.setState({
       isScrolling: false
     })
+
+    // making our events coming from android compatible to updateIndex logic
+    if (!e.nativeEvent.contentOffset) {
+      if (this.state.dir == 'x') {
+        e.nativeEvent.contentOffset = {x: e.nativeEvent.position * this.state.width}
+      } else {
+        e.nativeEvent.contentOffset = {y: e.nativeEvent.position * this.state.height}
+      }
+    }
 
     this.updateIndex(e.nativeEvent.contentOffset, this.state.dir)
 
@@ -299,7 +314,7 @@ export default React.createClass({
    * @param  {number} index offset index
    */
   scrollTo(index) {
-    if(this.state.isScrolling) return
+    if (this.state.isScrolling || this.state.total < 2) return
     let state = this.state
     let diff = (this.props.loop ? 1 : 0) + index + this.state.index
     let x = 0
@@ -325,9 +340,7 @@ export default React.createClass({
     if(this.state.total <= 1) return null
 
     let dots = []
-    for(let i = 0; i < this.state.total; i++) {
-      dots.push(i === this.state.index
-        ? (this.props.activeDot || <View style={{
+    let ActiveDot = this.props.activeDot || <View style={{
             backgroundColor: '#007aff',
             width: 8,
             height: 8,
@@ -336,8 +349,8 @@ export default React.createClass({
             marginRight: 3,
             marginTop: 3,
             marginBottom: 3,
-          }} />)
-        : (this.props.dot || <View style={{
+          }} />;
+    let Dot = this.props.dot || <View style={{
             backgroundColor:'rgba(0,0,0,.2)',
             width: 8,
             height: 8,
@@ -346,7 +359,13 @@ export default React.createClass({
             marginRight: 3,
             marginTop: 3,
             marginBottom: 3,
-          }} />)
+          }} />;
+    for(let i = 0; i < this.state.total; i++) {
+      dots.push(i === this.state.index
+        ?
+        React.cloneElement(ActiveDot, {key: i})
+        :
+        React.cloneElement(Dot, {key: i})
       )
     }
 
@@ -369,28 +388,66 @@ export default React.createClass({
       : null
   },
 
-  renderButtons() {
+  renderNextButton() {
+    let button;
 
-    let nextButton = this.props.nextButton || <Text style={[styles.buttonText, {color: !this.props.loop && this.state.index == this.state.total - 1 ? 'rgba(0,0,0,0)' : '#007aff'}]}>›</Text>
-
-    let prevButton = this.props.prevButton || <Text style={[styles.buttonText, {color: !this.props.loop && this.state.index == 0 ? 'rgba(0,0,0,0)' : '#007aff'}]}>‹</Text>
+    if (this.props.loop || this.state.index != this.state.total - 1) {
+      button = this.props.nextButton || <Text style={styles.buttonText}>›</Text>
+    }
 
     return (
-      <View pointerEvents='box-none' style={[styles.buttonWrapper, {width: this.state.width, height: this.state.height}, this.props.buttonWrapperStyle]}>
-        <TouchableOpacity onPress={() => !(!this.props.loop && this.state.index == 0) && this.scrollTo.call(this, -1)}>
-          <View>
-            {prevButton}
-          </View>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => !(!this.props.loop && this.state.index == this.state.total - 1) && this.scrollTo.call(this, 1)}>
-          <View>
-            {nextButton}
-          </View>
-        </TouchableOpacity>
-      </View>
+      <TouchableOpacity onPress={() => button !== null && this.scrollTo.call(this, 1)}>
+        <View>
+          {button}
+        </View>
+      </TouchableOpacity>
     )
   },
 
+  renderPrevButton() {
+    let button = null
+
+    if (this.props.loop || this.state.index != 0) {
+       button = this.props.prevButton || <Text style={styles.buttonText}>‹</Text>
+    }
+
+    return (
+      <TouchableOpacity onPress={() => button !== null && this.scrollTo.call(this, -1)}>
+        <View>
+          {button}
+        </View>
+      </TouchableOpacity>
+    )
+  },
+
+  renderButtons() {
+    return (
+      <View pointerEvents='box-none' style={[styles.buttonWrapper, {width: this.state.width, height: this.state.height}, this.props.buttonWrapperStyle]}>
+        {this.renderPrevButton()}
+        {this.renderNextButton()}
+      </View>
+    )
+  },
+  renderScrollView(pages) {
+     if (Platform.OS === 'ios')
+         return (
+            <ScrollView ref="scrollView"
+             {...this.props}
+                       contentContainerStyle={[styles.wrapper, this.props.style]}
+                       contentOffset={this.state.offset}
+                       onScrollBeginDrag={this.onScrollBegin}
+                       onMomentumScrollEnd={this.onScrollEnd}>
+             {pages}
+            </ScrollView>
+         );
+      return (
+         <ViewPagerAndroid ref="scrollView"
+            onPageSelected={this.onScrollEnd}
+            style={{flex: 1}}>
+            {pages}
+         </ViewPagerAndroid>
+      );
+  },
   /**
    * Inject state to ScrollResponder
    * @param  {object} props origin props
@@ -411,7 +468,6 @@ export default React.createClass({
         && prop !== 'onMomentumScrollEnd'
         && prop !== 'renderPagination'
         && prop !== 'onScrollBeginDrag'
-        && prop !== 'onScroll'
       ) {
         let originResponder = props[prop]
         props[prop] = (e) => originResponder(e, this.state, this)
@@ -459,16 +515,7 @@ export default React.createClass({
         width: state.width,
         height: state.height
       }]}>
-        <ScrollView ref="scrollView"
-          {...props}
-          onScroll={this.props.onScroll}
-          scrollEventThrottle={16}
-          contentContainerStyle={[styles.wrapper, props.style]}
-          contentOffset={state.offset}
-          onScrollBeginDrag={this.onScrollBegin}
-          onMomentumScrollEnd={this.onScrollEnd}>
-          {pages}
-        </ScrollView>
+        {this.renderScrollView(pages)}
         {props.showsPagination && (props.renderPagination
           ? this.props.renderPagination(state.index, state.total, this)
           : this.renderPagination())}

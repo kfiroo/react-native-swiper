@@ -9,7 +9,31 @@
 
 The best Swiper component for React Native.
 
-## Feature & TODO
+## Roadmap
+
+### V2
+
+- [ ] **Compatible with android**
+
+- [ ] Fixes currently bugs
+
+- [ ] More features
+
+- [ ] Improve performance
+
+- [ ] Landscape mode
+
+> Please track in [milestones:v2](https://github.com/leecade/react-native-swiper/milestones/v2)
+
+> Contribute code to [branch:Android](https://github.com/leecade/react-native-swiper/tree/android) and [branch:V2](https://github.com/leecade/react-native-swiper/tree/v2)
+
+> Provide creative in [issues](https://github.com/leecade/react-native-swiper/issues)
+
+-----
+
+### V1
+
+- [ ] **Support for Android**
 
 - [ ] More switch effects
 
@@ -39,7 +63,25 @@ The best Swiper component for React Native.
 
 ## Changelogs
 
-- **[v1.3.0]**
+- **[1.4.3]**
+  + Fixed auto play issue when only a child view
+
+- [v1.4.0]
+  + Support for React Native latest(`^0.17.0`) & Upgrade examples base on Xcode `7.2` / React Native `0.17.0`
+
+  + Upgrade build tool to babel6
+
+  + Add missing deps `react-timer-mixin`
+
+  + [1f8643a](https://github.com/leecade/react-native-swiper/commit/1f8643a67e2768d165132a19629a991a86672036) Move Dimensions import to deconstructed React import for react-native (@thanks [@jedrekk](https://github.com/jedrekk)).
+
+  + [e28af9b](https://github.com/leecade/react-native-swiper/commit/e28af9b205f17447cb3149b45fc220beec037bce) Support index property in combination with loop property (@thanks [@almost](https://github.com/almost)).
+
+  + [6c832d](https://github.com/leecade/react-native-swiper/commit/6c832d6a23da3737a2e8a2667273dc6093bcc9ee) fix warnings about keys for dots (@thanks [@sunnylqm](https://github.com/sunnylqm)).
+
+  + [8de1afc](https://github.com/leecade/react-native-swiper/commit/8de1afcb75a003424231bb089802db53bbbf84e4) Changes to make the example work in xcode 7 (@thanks [@allomov](https://github.com/allomov)).
+
+- [v1.3.0]
   + [8d6d75c](https://github.com/leecade/react-native-swiper/commit/8d6d75c00edf87b603c218aad0018932277814b5) inject `state` in ScrollResponders (@thanks [@smothers](https://github.com/smothers)).
 
 - [v1.2.2]
@@ -64,7 +106,7 @@ The best Swiper component for React Native.
 
 ## Show Cases
 
-> Try these cases by yourself very easy, Just open `examples/swiper.xcodeproj` with Xcode, then press `Cmd + R`; you may edit `examples/index.ios.js` for switch cases.
+> Try these cases by yourself very easy, Just open `examples/ios/swiper.xcodeproj` in Xcode, then press `Cmd + R`; you may edit `examples/index.ios.js` for switch cases.
 
 ### [examples/basic.js](https://github.com/leecade/react-native-swiper/blob/master/examples/examples/basic.js)
 
@@ -189,7 +231,7 @@ AppRegistry.registerComponent('swiper', () => swiper)
 | Prop  | Default  | Type | Description |
 | :------------ |:---------------:| :---------------:| :-----|
 | horizontal | true | `bool` | If `true`, the scroll view's children are arranged horizontally in a row instead of vertically in a column. |
-| loop | true | `bool` | Set to `true` to enable continuous loop mode. |
+| loop | true | `bool` | Set to `false` to disable continuous loop mode. |
 | index | 0 | `number` | Index number of initial slide. |
 | showsButtons | false | `bool` | Set to `true` make control buttons visible. |
 | autoplay | false | `bool` | Set to `true` enable auto play mode. |
