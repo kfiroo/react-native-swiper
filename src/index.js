@@ -436,6 +436,7 @@ module.exports = React.createClass({
                        contentContainerStyle={[styles.wrapper, this.props.style]}
                        contentOffset={this.state.offset}
                        onScrollBeginDrag={this.onScrollBegin}
+                       onScroll={this.props.onScroll}
                        onMomentumScrollEnd={this.onScrollEnd}>
              {pages}
             </ScrollView>
@@ -468,6 +469,7 @@ module.exports = React.createClass({
         && prop !== 'onMomentumScrollEnd'
         && prop !== 'renderPagination'
         && prop !== 'onScrollBeginDrag'
+        && prop !== 'onScroll'
       ) {
         let originResponder = props[prop]
         props[prop] = (e) => originResponder(e, this.state, this)

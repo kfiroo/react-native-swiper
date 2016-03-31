@@ -452,6 +452,7 @@ module.exports = _reactNative2['default'].createClass({
         contentContainerStyle: [styles.wrapper, this.props.style],
         contentOffset: this.state.offset,
         onScrollBeginDrag: this.onScrollBegin,
+        onScroll: this.props.onScroll,
         onMomentumScrollEnd: this.onScrollEnd }),
       pages
     );
@@ -481,7 +482,7 @@ module.exports = _reactNative2['default'].createClass({
 
     for (var prop in props) {
       // if(~scrollResponders.indexOf(prop)
-      if (typeof props[prop] === 'function' && prop !== 'onMomentumScrollEnd' && prop !== 'renderPagination' && prop !== 'onScrollBeginDrag') {
+      if (typeof props[prop] === 'function' && prop !== 'onMomentumScrollEnd' && prop !== 'renderPagination' && prop !== 'onScrollBeginDrag' && prop !== 'onScroll') {
         (function () {
           var originResponder = props[prop];
           props[prop] = function (e) {
