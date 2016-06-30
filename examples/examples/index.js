@@ -5,11 +5,17 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
                                                                                                                                                                                                                                                                    * @author leecade<leecade@163.com>
                                                                                                                                                                                                                                                                    */
 
+
 // Using bare setTimeout, setInterval, setImmediate
 // and requestAnimationFrame calls is very dangerous
 // because if you forget to cancel the request before
 // the component is unmounted, you risk the callback
 // throwing an exception.
+
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
 
 var _reactNative = require('react-native');
 
@@ -103,32 +109,33 @@ var styles = _reactNative.StyleSheet.create({
 
 // missing `module.exports = exports['default'];` with babel6
 // export default React.createClass({
-module.exports = _reactNative2.default.createClass({
+module.exports = _react2.default.createClass({
   displayName: 'exports',
+
 
   /**
    * Props Validation
    * @type {Object}
    */
   propTypes: {
-    horizontal: _reactNative2.default.PropTypes.bool,
-    children: _reactNative2.default.PropTypes.node.isRequired,
+    horizontal: _react2.default.PropTypes.bool,
+    children: _react2.default.PropTypes.node.isRequired,
     style: _reactNative.View.propTypes.style,
-    pagingEnabled: _reactNative2.default.PropTypes.bool,
-    showsHorizontalScrollIndicator: _reactNative2.default.PropTypes.bool,
-    showsVerticalScrollIndicator: _reactNative2.default.PropTypes.bool,
-    bounces: _reactNative2.default.PropTypes.bool,
-    scrollsToTop: _reactNative2.default.PropTypes.bool,
-    removeClippedSubviews: _reactNative2.default.PropTypes.bool,
-    automaticallyAdjustContentInsets: _reactNative2.default.PropTypes.bool,
-    showsPagination: _reactNative2.default.PropTypes.bool,
-    showsButtons: _reactNative2.default.PropTypes.bool,
-    loop: _reactNative2.default.PropTypes.bool,
-    autoplay: _reactNative2.default.PropTypes.bool,
-    autoplayTimeout: _reactNative2.default.PropTypes.number,
-    autoplayDirection: _reactNative2.default.PropTypes.bool,
-    index: _reactNative2.default.PropTypes.number,
-    renderPagination: _reactNative2.default.PropTypes.func
+    pagingEnabled: _react2.default.PropTypes.bool,
+    showsHorizontalScrollIndicator: _react2.default.PropTypes.bool,
+    showsVerticalScrollIndicator: _react2.default.PropTypes.bool,
+    bounces: _react2.default.PropTypes.bool,
+    scrollsToTop: _react2.default.PropTypes.bool,
+    removeClippedSubviews: _react2.default.PropTypes.bool,
+    automaticallyAdjustContentInsets: _react2.default.PropTypes.bool,
+    showsPagination: _react2.default.PropTypes.bool,
+    showsButtons: _react2.default.PropTypes.bool,
+    loop: _react2.default.PropTypes.bool,
+    autoplay: _react2.default.PropTypes.bool,
+    autoplayTimeout: _react2.default.PropTypes.number,
+    autoplayDirection: _react2.default.PropTypes.bool,
+    index: _react2.default.PropTypes.number,
+    renderPagination: _react2.default.PropTypes.func
   },
 
   mixins: [_reactTimerMixin2.default],
@@ -158,6 +165,7 @@ module.exports = _reactNative2.default.createClass({
     };
   },
 
+
   /**
    * Init states
    * @return {object} states
@@ -165,6 +173,7 @@ module.exports = _reactNative2.default.createClass({
   getInitialState: function getInitialState() {
     return this.initState(this.props);
   },
+
 
   /**
    * autoplay timer
@@ -182,26 +191,40 @@ module.exports = _reactNative2.default.createClass({
     this.autoplay();
   },
   initState: function initState(props) {
+    // set the current state
+    var state = this.state || {};
+
     var initState = {
       isScrolling: false,
       autoplayEnd: false
     };
 
     initState.total = props.children ? props.children.length || 1 : 0;
-    initState.index = initState.total > 1 ? Math.min(props.index, initState.total - 1) : 0;
+
+    if (state.total === initState.total) {
+      // retain the index
+      initState.index = state.index;
+    } else {
+      // reset the index
+      initState.index = initState.total > 1 ? Math.min(props.index, initState.total - 1) : 0;
+    }
 
     // Default: horizontal
-    initState.dir = props.horizontal == false ? 'y' : 'x';
+    initState.dir = props.horizontal === false ? 'y' : 'x';
     initState.width = props.width || width;
     initState.height = props.height || height;
     initState.offset = {};
 
     if (initState.total > 1) {
-      var setup = props.loop ? 1 : initState.index;
-      initState.offset[initState.dir] = initState.dir == 'y' ? initState.height * setup : initState.width * setup;
+      var setup = initState.index;
+      if (props.loop) {
+        setup++;
+      }
+      initState.offset[initState.dir] = initState.dir === 'y' ? initState.height * setup : initState.width * setup;
     }
     return initState;
   },
+
 
   /**
    * Automatic rolling
@@ -209,17 +232,21 @@ module.exports = _reactNative2.default.createClass({
   autoplay: function autoplay() {
     var _this = this;
 
-    if (!Array.isArray(this.props.children) || !this.props.autoplay || this.state.isScrolling || this.state.autoplayEnd) return;
+    if (!Array.isArray(this.props.children) || !this.props.autoplay || this.state.isScrolling || this.state.autoplayEnd) {
+      return;
+    }
 
     clearTimeout(this.autoplayTimer);
 
     this.autoplayTimer = this.setTimeout(function () {
-      if (!_this.props.loop && (_this.props.autoplayDirection ? _this.state.index == _this.state.total - 1 : _this.state.index == 0)) return _this.setState({
-        autoplayEnd: true
-      });
-      _this.scrollTo(_this.props.autoplayDirection ? 1 : -1);
+      if (!_this.props.loop && (_this.props.autoplayDirection ? _this.state.index === _this.state.total - 1 : _this.state.index === 0)) {
+        return _this.setState({ autoplayEnd: true });
+      }
+
+      _this.scrollBy(_this.props.autoplayDirection ? 1 : -1);
     }, this.props.autoplayTimeout * 1000);
   },
+
 
   /**
    * Scroll begin handle
@@ -229,14 +256,13 @@ module.exports = _reactNative2.default.createClass({
     var _this2 = this;
 
     // update scroll state
-    this.setState({
-      isScrolling: true
-    });
+    this.setState({ isScrolling: true });
 
     this.setTimeout(function () {
       _this2.props.onScrollBeginDrag && _this2.props.onScrollBeginDrag(e, _this2.state, _this2);
     });
   },
+
 
   /**
    * Scroll end handle
@@ -250,6 +276,15 @@ module.exports = _reactNative2.default.createClass({
       isScrolling: false
     });
 
+    // making our events coming from android compatible to updateIndex logic
+    if (!e.nativeEvent.contentOffset) {
+      if (this.state.dir === 'x') {
+        e.nativeEvent.contentOffset = { x: e.nativeEvent.position * this.state.width };
+      } else {
+        e.nativeEvent.contentOffset = { y: e.nativeEvent.position * this.state.height };
+      }
+    }
+
     this.updateIndex(e.nativeEvent.contentOffset, this.state.dir);
 
     // Note: `this.setState` is async, so I call the `onMomentumScrollEnd`
@@ -262,6 +297,7 @@ module.exports = _reactNative2.default.createClass({
     });
   },
 
+
   /**
    * Update index after scroll
    * @param  {object} offset content offset
@@ -272,14 +308,15 @@ module.exports = _reactNative2.default.createClass({
     var state = this.state;
     var index = state.index;
     var diff = offset[dir] - state.offset[dir];
-    var step = dir == 'x' ? state.width : state.height;
+    var step = dir === 'x' ? state.width : state.height;
 
     // Do nothing if offset no change.
     if (!diff) return;
 
     // Note: if touch very very quickly and continuous,
     // the variation of `index` more than 1.
-    index = index + diff / step;
+    // parseInt() ensures it's always an integer
+    index = parseInt(index + diff / step);
 
     if (this.props.loop) {
       if (index <= -1) {
@@ -297,26 +334,49 @@ module.exports = _reactNative2.default.createClass({
     });
   },
 
+
   /**
    * Scroll by index
    * @param  {number} index offset index
    */
-  scrollTo: function scrollTo(index) {
+  scrollBy: function scrollBy(index) {
+    var _this4 = this;
+
     if (this.state.isScrolling || this.state.total < 2) return;
     var state = this.state;
     var diff = (this.props.loop ? 1 : 0) + index + this.state.index;
     var x = 0;
     var y = 0;
-    if (state.dir == 'x') x = diff * state.width;
-    if (state.dir == 'y') y = diff * state.height;
-    this.refs.scrollView && this.refs.scrollView.scrollTo(y, x);
+    if (state.dir === 'x') x = diff * state.width;
+    if (state.dir === 'y') y = diff * state.height;
+
+    if (_reactNative.Platform.OS === 'android') {
+      this.refs.scrollView && this.refs.scrollView.setPage(diff);
+    } else {
+      this.refs.scrollView && this.refs.scrollView.scrollTo({
+        y: y,
+        x: x
+      });
+    }
 
     // update scroll state
     this.setState({
       isScrolling: true,
       autoplayEnd: false
     });
+
+    // trigger onScrollEnd manually in android
+    if (_reactNative.Platform.OS === 'android') {
+      this.setTimeout(function () {
+        _this4.onScrollEnd({
+          nativeEvent: {
+            position: diff
+          }
+        });
+      }, 50);
+    }
   },
+
 
   /**
    * Render pagination
@@ -328,7 +388,7 @@ module.exports = _reactNative2.default.createClass({
     if (this.state.total <= 1) return null;
 
     var dots = [];
-    var ActiveDot = this.props.activeDot || _reactNative2.default.createElement(_reactNative.View, { style: {
+    var ActiveDot = this.props.activeDot || _react2.default.createElement(_reactNative.View, { style: {
         backgroundColor: '#007aff',
         width: 8,
         height: 8,
@@ -338,7 +398,7 @@ module.exports = _reactNative2.default.createClass({
         marginTop: 3,
         marginBottom: 3
       } });
-    var Dot = this.props.dot || _reactNative2.default.createElement(_reactNative.View, { style: {
+    var Dot = this.props.dot || _react2.default.createElement(_reactNative.View, { style: {
         backgroundColor: 'rgba(0,0,0,.2)',
         width: 8,
         height: 8,
@@ -349,10 +409,10 @@ module.exports = _reactNative2.default.createClass({
         marginBottom: 3
       } });
     for (var i = 0; i < this.state.total; i++) {
-      dots.push(i === this.state.index ? _reactNative2.default.cloneElement(ActiveDot, { key: i }) : _reactNative2.default.cloneElement(Dot, { key: i }));
+      dots.push(i === this.state.index ? _react2.default.cloneElement(ActiveDot, { key: i }) : _react2.default.cloneElement(Dot, { key: i }));
     }
 
-    return _reactNative2.default.createElement(
+    return _react2.default.createElement(
       _reactNative.View,
       { pointerEvents: 'none', style: [styles['pagination_' + this.state.dir], this.props.paginationStyle] },
       dots
@@ -361,31 +421,31 @@ module.exports = _reactNative2.default.createClass({
   renderTitle: function renderTitle() {
     var child = this.props.children[this.state.index];
     var title = child && child.props.title;
-    return title ? _reactNative2.default.createElement(
+    return title ? _react2.default.createElement(
       _reactNative.View,
       { style: styles.title },
       this.props.children[this.state.index].props.title
     ) : null;
   },
   renderNextButton: function renderNextButton() {
-    var _this4 = this;
+    var _this5 = this;
 
-    var button = undefined;
+    var button = void 0;
 
     if (this.props.loop || this.state.index != this.state.total - 1) {
-      button = this.props.nextButton || _reactNative2.default.createElement(
+      button = this.props.nextButton || _react2.default.createElement(
         _reactNative.Text,
         { style: styles.buttonText },
         '›'
       );
     }
 
-    return _reactNative2.default.createElement(
+    return _react2.default.createElement(
       _reactNative.TouchableOpacity,
       { onPress: function onPress() {
-          return button !== null && _this4.scrollTo.call(_this4, 1);
+          return button !== null && _this5.scrollBy.call(_this5, 1);
         } },
-      _reactNative2.default.createElement(
+      _react2.default.createElement(
         _reactNative.View,
         null,
         button
@@ -393,24 +453,24 @@ module.exports = _reactNative2.default.createClass({
     );
   },
   renderPrevButton: function renderPrevButton() {
-    var _this5 = this;
+    var _this6 = this;
 
     var button = null;
 
     if (this.props.loop || this.state.index != 0) {
-      button = this.props.prevButton || _reactNative2.default.createElement(
+      button = this.props.prevButton || _react2.default.createElement(
         _reactNative.Text,
         { style: styles.buttonText },
         '‹'
       );
     }
 
-    return _reactNative2.default.createElement(
+    return _react2.default.createElement(
       _reactNative.TouchableOpacity,
       { onPress: function onPress() {
-          return button !== null && _this5.scrollTo.call(_this5, -1);
+          return button !== null && _this6.scrollBy.call(_this6, -1);
         } },
-      _reactNative2.default.createElement(
+      _react2.default.createElement(
         _reactNative.View,
         null,
         button
@@ -418,7 +478,7 @@ module.exports = _reactNative2.default.createClass({
     );
   },
   renderButtons: function renderButtons() {
-    return _reactNative2.default.createElement(
+    return _react2.default.createElement(
       _reactNative.View,
       { pointerEvents: 'box-none', style: [styles.buttonWrapper, { width: this.state.width, height: this.state.height }, this.props.buttonWrapperStyle] },
       this.renderPrevButton(),
@@ -426,20 +486,28 @@ module.exports = _reactNative2.default.createClass({
     );
   },
   renderScrollView: function renderScrollView(pages) {
-    if (_reactNative.Platform.OS === 'ios') return _reactNative2.default.createElement(
+    var _this7 = this;
+
+    if (_reactNative.Platform.OS === 'ios') return _react2.default.createElement(
       _reactNative.ScrollView,
       _extends({ ref: 'scrollView'
       }, this.props, {
         contentContainerStyle: [styles.wrapper, this.props.style],
         contentOffset: this.state.offset,
         onScrollBeginDrag: this.onScrollBegin,
+        onScrollEndDrag: function onScrollEndDrag() {
+          return _this7.setState({ isScrolling: false });
+        },
         onMomentumScrollEnd: this.onScrollEnd }),
       pages
     );
-    return _reactNative2.default.createElement(
+    return _react2.default.createElement(
       _reactNative.ViewPagerAndroid,
-      { ref: 'scrollView',
-        style: { flex: 1 } },
+      _extends({ ref: 'scrollView'
+      }, this.props, {
+        initialPage: this.state.index,
+        onPageSelected: this.onScrollEnd,
+        style: { flex: 1 } }),
       pages
     );
   },
@@ -450,7 +518,7 @@ module.exports = _reactNative2.default.createClass({
    * @return {object} props injected props
    */
   injectState: function injectState(props) {
-    var _this6 = this;
+    var _this8 = this;
 
     /*    const scrollResponders = [
           'onMomentumScrollBegin',
@@ -466,7 +534,7 @@ module.exports = _reactNative2.default.createClass({
         (function () {
           var originResponder = props[prop];
           props[prop] = function (e) {
-            return originResponder(e, _this6.state, _this6);
+            return originResponder(e, _this8.state, _this8);
           };
         })();
       }
@@ -474,6 +542,7 @@ module.exports = _reactNative2.default.createClass({
 
     return props;
   },
+
 
   /**
    * Default render
@@ -503,19 +572,19 @@ module.exports = _reactNative2.default.createClass({
       }
 
       pages = pages.map(function (page, i) {
-        return _reactNative2.default.createElement(
+        return _react2.default.createElement(
           _reactNative.View,
           { style: pageStyle, key: i },
           children[page]
         );
       });
-    } else pages = _reactNative2.default.createElement(
+    } else pages = _react2.default.createElement(
       _reactNative.View,
       { style: pageStyle },
       children
     );
 
-    return _reactNative2.default.createElement(
+    return _react2.default.createElement(
       _reactNative.View,
       { style: [styles.container, {
           width: state.width,
