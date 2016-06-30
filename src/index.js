@@ -4,14 +4,14 @@
  */
 import React from 'react'
 import ReactNative, {
-  StyleSheet,
-  Text,
-  View,
-  ScrollView,
-  Dimensions,
-  TouchableOpacity,
-  ViewPagerAndroid,
-  Platform
+    StyleSheet,
+    Text,
+    View,
+    ScrollView,
+    Dimensions,
+    TouchableOpacity,
+    ViewPagerAndroid,
+    Platform
 } from 'react-native'
 
 // Using bare setTimeout, setInterval, setImmediate
@@ -21,7 +21,7 @@ import ReactNative, {
 // throwing an exception.
 import TimerMixin from 'react-timer-mixin'
 
-let { width, height } = Dimensions.get('window')
+let {width, height} = Dimensions.get('window')
 
 /**
  * Default styles
@@ -135,7 +135,7 @@ module.exports = React.createClass({
      * @return {object} props
      * @see http://facebook.github.io/react-native/docs/scrollview.html
      */
-        getDefaultProps() {
+    getDefaultProps() {
         return {
             horizontal: true,
             pagingEnabled: true,
@@ -160,7 +160,7 @@ module.exports = React.createClass({
      * Init states
      * @return {object} states
      */
-        getInitialState() {
+    getInitialState() {
         return this.initState(this.props)
     },
 
@@ -182,104 +182,104 @@ module.exports = React.createClass({
         this.autoplay()
     },
 
-  initState(props) {
-    // set the current state
-    const state = this.state || {}
+    initState(props) {
+        // set the current state
+        const state = this.state || {}
 
-    let initState = {
-      isScrolling: false,
-      autoplayEnd: false,
-    }
+        let initState = {
+            isScrolling: false,
+            autoplayEnd: false,
+        }
 
-    initState.total = props.children ? props.children.length || 1 : 0
+        initState.total = props.children ? props.children.length || 1 : 0
 
-    if (state.total === initState.total) {
-      // retain the index
-      initState.index = state.index
-    } else {
-      // reset the index
-      initState.index = initState.total > 1 ? Math.min(props.index, initState.total - 1) : 0
-    }
+        if (state.total === initState.total) {
+            // retain the index
+            initState.index = state.index
+        } else {
+            // reset the index
+            initState.index = initState.total > 1 ? Math.min(props.index, initState.total - 1) : 0
+        }
 
-    // Default: horizontal
-    initState.dir = props.horizontal === false ? 'y' : 'x'
-    initState.width = props.width || width
-    initState.height = props.height || height
-    initState.offset = {}
+        // Default: horizontal
+        initState.dir = props.horizontal === false ? 'y' : 'x'
+        initState.width = props.width || width
+        initState.height = props.height || height
+        initState.offset = {}
 
-    if (initState.total > 1) {
-      var setup = initState.index
-      if ( props.loop ) {
-        setup++
-      }
-      initState.offset[initState.dir] = initState.dir === 'y'
-        ? initState.height * setup
-        : initState.width * setup
-    }
-    return initState
-  },
+        if (initState.total > 1) {
+            var setup = initState.index
+            if (props.loop) {
+                setup++
+            }
+            initState.offset[initState.dir] = initState.dir === 'y'
+                ? initState.height * setup
+                : initState.width * setup
+        }
+        return initState
+    },
 
-  /**
-   * Automatic rolling
-   */
-  autoplay() {
-    if(
-      !Array.isArray(this.props.children)
-      || !this.props.autoplay
-      || this.state.isScrolling
-      || this.state.autoplayEnd
-    ) {
-      return
-    }
+    /**
+     * Automatic rolling
+     */
+    autoplay() {
+        if (
+            !Array.isArray(this.props.children)
+            || !this.props.autoplay
+            || this.state.isScrolling
+            || this.state.autoplayEnd
+        ) {
+            return
+        }
 
         clearTimeout(this.autoplayTimer)
 
-    this.autoplayTimer = this.setTimeout(() => {
-      if(
-        !this.props.loop && (
-          this.props.autoplayDirection
-            ? this.state.index === this.state.total - 1
-            : this.state.index === 0
-        )
-      ) {
-        return this.setState({ autoplayEnd: true })
-      }
+        this.autoplayTimer = this.setTimeout(() => {
+            if (
+                !this.props.loop && (
+                    this.props.autoplayDirection
+                        ? this.state.index === this.state.total - 1
+                        : this.state.index === 0
+                )
+            ) {
+                return this.setState({autoplayEnd: true})
+            }
 
-      this.scrollBy(this.props.autoplayDirection ? 1 : -1)
-    }, this.props.autoplayTimeout * 1000)
-  },
+            this.scrollBy(this.props.autoplayDirection ? 1 : -1)
+        }, this.props.autoplayTimeout * 1000)
+    },
 
-  /**
-   * Scroll begin handle
-   * @param  {object} e native event
-   */
-  onScrollBegin(e) {
-    // update scroll state
-    this.setState({ isScrolling: true })
+    /**
+     * Scroll begin handle
+     * @param  {object} e native event
+     */
+    onScrollBegin(e) {
+        // update scroll state
+        this.setState({isScrolling: true})
 
         this.setTimeout(() => {
             this.props.onScrollBeginDrag && this.props.onScrollBeginDrag(e, this.state, this)
         })
     },
 
-  /**
-   * Scroll end handle
-   * @param  {object} e native event
-   */
-  onScrollEnd(e) {
-    // update scroll state
-    this.setState({
-      isScrolling: false
-    })
+    /**
+     * Scroll end handle
+     * @param  {object} e native event
+     */
+    onScrollEnd(e) {
+        // update scroll state
+        this.setState({
+            isScrolling: false
+        })
 
-    // making our events coming from android compatible to updateIndex logic
-    if (!e.nativeEvent.contentOffset) {
-      if (this.state.dir === 'x') {
-        e.nativeEvent.contentOffset = {x: e.nativeEvent.position * this.state.width}
-      } else {
-        e.nativeEvent.contentOffset = {y: e.nativeEvent.position * this.state.height}
-      }
-    }
+        // making our events coming from android compatible to updateIndex logic
+        if (!e.nativeEvent.contentOffset) {
+            if (this.state.dir === 'x') {
+                e.nativeEvent.contentOffset = {x: e.nativeEvent.position * this.state.width}
+            } else {
+                e.nativeEvent.contentOffset = {y: e.nativeEvent.position * this.state.height}
+            }
+        }
 
         this.updateIndex(e.nativeEvent.contentOffset, this.state.dir)
 
@@ -298,20 +298,20 @@ module.exports = React.createClass({
      * @param  {object} offset content offset
      * @param  {string} dir    'x' || 'y'
      */
-        updateIndex(offset, dir) {
+    updateIndex(offset, dir) {
 
-    let state = this.state
-    let index = state.index
-    let diff = offset[dir] - state.offset[dir]
-    let step = dir === 'x' ? state.width : state.height
+        let state = this.state
+        let index = state.index
+        let diff = offset[dir] - state.offset[dir]
+        let step = dir === 'x' ? state.width : state.height
 
         // Do nothing if offset no change.
         if (!diff) return
 
-    // Note: if touch very very quickly and continuous,
-    // the variation of `index` more than 1.
-    // parseInt() ensures it's always an integer
-    index = parseInt(index + diff / step)
+        // Note: if touch very very quickly and continuous,
+        // the variation of `index` more than 1.
+        // parseInt() ensures it's always an integer
+        index = parseInt(index + diff / step)
 
         if (this.props.loop) {
             if (index <= -1) {
@@ -330,52 +330,52 @@ module.exports = React.createClass({
         })
     },
 
-  /**
-   * Scroll by index
-   * @param  {number} index offset index
-   */
-  scrollBy(index) {
-    if (this.state.isScrolling || this.state.total < 2) return
-    let state = this.state
-    let diff = (this.props.loop ? 1 : 0) + index + this.state.index
-    let x = 0
-    let y = 0
-    if(state.dir === 'x') x = diff * state.width
-    if(state.dir === 'y') y = diff * state.height
+    /**
+     * Scroll by index
+     * @param  {number} index offset index
+     */
+    scrollBy(index) {
+        if (this.state.isScrolling || this.state.total < 2) return
+        let state = this.state
+        let diff = (this.props.loop ? 1 : 0) + index + this.state.index
+        let x = 0
+        let y = 0
+        if (state.dir === 'x') x = diff * state.width
+        if (state.dir === 'y') y = diff * state.height
 
-    if (Platform.OS === 'android') {
-      this.refs.scrollView && this.refs.scrollView.setPage(diff)
-    } else {
-      this.refs.scrollView && this.refs.scrollView.scrollTo({
-        y: y,
-        x: x
-      })
-    }
+        if (Platform.OS === 'android') {
+            this.refs.scrollView && this.refs.scrollView.setPage(diff)
+        } else {
+            this.refs.scrollView && this.refs.scrollView.scrollTo({
+                y: y,
+                x: x
+            })
+        }
 
-    // update scroll state
-    this.setState({
-      isScrolling: true,
-      autoplayEnd: false,
-    })
+        // update scroll state
+        this.setState({
+            isScrolling: true,
+            autoplayEnd: false,
+        })
 
-    // trigger onScrollEnd manually in android
-    if (Platform.OS === 'android') {
-      this.setTimeout(() => {
-        this.onScrollEnd({
-          nativeEvent: {
-            position: diff,
-          }
-        });
-      }, 50);
-    }
+        // trigger onScrollEnd manually in android
+        if (Platform.OS === 'android') {
+            this.setTimeout(() => {
+                this.onScrollEnd({
+                    nativeEvent: {
+                        position: diff,
+                    }
+                });
+            }, 50);
+        }
 
-  },
+    },
 
     /**
      * Render pagination
      * @return {object} react-dom
      */
-        renderPagination() {
+    renderPagination() {
 
         // By default, dots only show when `total` > 2
         if (this.state.total <= 1) return null
@@ -403,10 +403,10 @@ module.exports = React.createClass({
           }}/>;
         for (let i = 0; i < this.state.total; i++) {
             dots.push(i === this.state.index
-                    ?
-                    React.cloneElement(ActiveDot, {key: i})
-                    :
-                    React.cloneElement(Dot, {key: i})
+                ?
+                React.cloneElement(ActiveDot, {key: i})
+                :
+                React.cloneElement(Dot, {key: i})
             )
         }
 
@@ -436,14 +436,14 @@ module.exports = React.createClass({
             button = this.props.nextButton || <Text style={styles.buttonText}>›</Text>
         }
 
-    return (
-      <TouchableOpacity onPress={() => button !== null && this.scrollBy.call(this, 1)}>
-        <View>
-          {button}
-        </View>
-      </TouchableOpacity>
-    )
-  },
+        return (
+            <TouchableOpacity onPress={() => button !== null && this.scrollBy.call(this, 1)}>
+                <View>
+                    {button}
+                </View>
+            </TouchableOpacity>
+        )
+    },
 
     renderPrevButton() {
         let button = null
@@ -452,59 +452,60 @@ module.exports = React.createClass({
             button = this.props.prevButton || <Text style={styles.buttonText}>‹</Text>
         }
 
-    return (
-      <TouchableOpacity onPress={() => button !== null && this.scrollBy.call(this, -1)}>
-        <View>
-          {button}
-        </View>
-      </TouchableOpacity>
-    )
-  },
+        return (
+            <TouchableOpacity onPress={() => button !== null && this.scrollBy.call(this, -1)}>
+                <View>
+                    {button}
+                </View>
+            </TouchableOpacity>
+        )
+    },
 
-  renderButtons() {
-    return (
-      <View pointerEvents='box-none' style={[styles.buttonWrapper, {width: this.state.width, height: this.state.height}, this.props.buttonWrapperStyle]}>
-        {this.renderPrevButton()}
-        {this.renderNextButton()}
-      </View>
-    )
-  },
-  renderScrollView(pages) {
-     if (Platform.OS === 'ios')
-         return (
-            <ScrollView ref="scrollView"
-             {...this.props}
-                       contentContainerStyle={[styles.wrapper, this.props.style]}
-                       contentOffset={this.state.offset}
-                       onScrollBeginDrag={this.onScrollBegin}
-                       onScrollEndDrag={()=>this.setState({isScrolling:false})}
-                       onMomentumScrollEnd={this.onScrollEnd}>
-             {pages}
-            </ScrollView>
-         );
-      return (
-         <ViewPagerAndroid ref="scrollView"
-          {...this.props}
-            initialPage={this.state.index}
-            onPageSelected={this.onScrollEnd}
-            style={{flex: 1}}>
-            {pages}
-         </ViewPagerAndroid>
-      );
-  },
-  /**
-   * Inject state to ScrollResponder
-   * @param  {object} props origin props
-   * @return {object} props injected props
-   */
-  injectState(props) {
-/*    const scrollResponders = [
-      'onMomentumScrollBegin',
-      'onTouchStartCapture',
-      'onTouchStart',
-      'onTouchEnd',
-      'onResponderRelease',
-    ]*/
+    renderButtons() {
+        return (
+            <View pointerEvents='box-none'
+                  style={[styles.buttonWrapper, {width: this.state.width, height: this.state.height}, this.props.buttonWrapperStyle]}>
+                {this.renderPrevButton()}
+                {this.renderNextButton()}
+            </View>
+        )
+    },
+    renderScrollView(pages) {
+        if (Platform.OS === 'ios')
+            return (
+                <ScrollView ref="scrollView"
+                    {...this.props}
+                            contentContainerStyle={[styles.wrapper, this.props.style]}
+                            contentOffset={this.state.offset}
+                            onScrollBeginDrag={this.onScrollBegin}
+                            onScrollEndDrag={()=>this.setState({isScrolling:false})}
+                            onMomentumScrollEnd={this.onScrollEnd}>
+                    {pages}
+                </ScrollView>
+            );
+        return (
+            <ViewPagerAndroid ref="scrollView"
+                {...this.props}
+                              initialPage={this.state.index}
+                              onPageSelected={this.onScrollEnd}
+                              style={{flex: 1}}>
+                {pages}
+            </ViewPagerAndroid>
+        );
+    },
+    /**
+     * Inject state to ScrollResponder
+     * @param  {object} props origin props
+     * @return {object} props injected props
+     */
+    injectState(props) {
+        /*    const scrollResponders = [
+         'onMomentumScrollBegin',
+         'onTouchStartCapture',
+         'onTouchStart',
+         'onTouchEnd',
+         'onResponderRelease',
+         ]*/
 
         for (let prop in props) {
             // if(~scrollResponders.indexOf(prop)
@@ -526,7 +527,7 @@ module.exports = React.createClass({
      * Default render
      * @return {object} react-dom
      */
-        render() {
+    render() {
         let state = this.state
         let props = this.props
         let children = props.children
@@ -550,7 +551,7 @@ module.exports = React.createClass({
             }
 
             pages = pages.map((page, i) =>
-                    <View style={pageStyle} key={i}>{children[page]}</View>
+                <View style={pageStyle} key={i}>{children[page]}</View>
             )
         }
         else pages = <View style={pageStyle}>{children}</View>
